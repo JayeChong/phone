@@ -1,0 +1,85 @@
+<style>
+  .cards { grid-template-columns: repeat(3, minmax(230px, 1fr)); align-items: stretch; }
+  .card { overflow: hidden; }
+  .card-image { padding: 18px; background: #e9edf1; }
+  .phone { width: 184px; aspect-ratio: 2 / 3; margin: 0 auto; border: 3px solid #172027; border-radius: 18px; background: #f7f8f6; overflow: hidden; box-shadow: 0 10px 25px rgba(23,32,39,.15); position: relative; color: #172027; }
+  .status { height: 20px; padding: 7px 11px 0; display: flex; justify-content: space-between; font: 600 8px/1 sans-serif; }
+  .title { padding: 8px 12px 6px; font: 700 14px/1.2 sans-serif; }
+  .task-strip { display: flex; gap: 7px; padding: 5px 12px 34px; overflow: hidden; height: 205px; align-items: center; }
+  .task { flex: 0 0 142px; height: 180px; border-radius: 9px; background: white; box-shadow: 0 4px 13px rgba(23,32,39,.16); overflow: hidden; border: 1px solid #d6dbdf; }
+  .task.small { flex-basis: 125px; height: 154px; }
+  .task-head { display: flex; align-items: center; gap: 6px; padding: 8px; font: 700 9px/1 sans-serif; }
+  .app-icon { width: 19px; height: 19px; border-radius: 5px; display: grid; place-items: center; color: white; font: 800 9px/1 sans-serif; }
+  .dial { background: #219653; } .map { background: #2978b5; } .photo { background: #d6623f; }
+  .preview { margin: 0 8px; height: 132px; border-radius: 5px; background: #edf2f2; padding: 7px; box-sizing: border-box; }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .key { width: 22px; height: 22px; border-radius: 50%; background: white; display: grid; place-items: center; font: 600 8px/1 sans-serif; margin: auto; }
+  .map-preview { background: linear-gradient(135deg,#d9e9dd 0 46%,#bdcfda 46% 53%,#e9e2c8 53%); position: relative; }
+  .pin { position:absolute; width:10px; height:10px; background:#d94c3d; border-radius:50% 50% 50% 0; transform:rotate(-45deg); left:57px; top:55px; }
+  .state-list { padding: 3px 8px 12px; display: grid; gap: 7px; }
+  .state-row { padding: 10px 8px; border-radius: 7px; background: white; border: 1px solid #d6dbdf; display: flex; align-items: center; gap: 8px; font: 700 9px/1 sans-serif; box-shadow: 0 2px 7px rgba(23,32,39,.08); }
+  .state-row span:last-child { margin-left: auto; color:#68747b; font-weight:500; }
+  .home-line { position:absolute; bottom:7px; left:64px; width:56px; height:4px; border-radius:4px; background:#172027; }
+  .memory { position:absolute; bottom:19px; width:100%; text-align:center; font: 600 8px/1 sans-serif; color:#66737a; }
+  .recommended { color:#16623b; font-weight:700; }
+  @media (max-width: 850px) { .cards { grid-template-columns: 1fr; } }
+</style>
+
+<h2>任务管理器采用哪种呈现？</h2>
+<p class="subtitle">均支持从屏幕底部上划进入、左右浏览任务、把任务卡继续上划关闭。点击卡片恢复 APP。</p>
+
+<div class="cards">
+  <div class="card" data-choice="live-pages" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>4G 82%</span></div>
+        <div class="title">运行中的 APP</div>
+        <div class="task-strip">
+          <div class="task">
+            <div class="task-head"><span class="app-icon dial">话</span>电话</div>
+            <div class="preview"><div style="text-align:center;font:700 9px sans-serif;margin:3px 0 8px">138 0013 8000</div><div class="keypad"><i class="key">1</i><i class="key">2</i><i class="key">3</i><i class="key">4</i><i class="key">5</i><i class="key">6</i><i class="key">7</i><i class="key">8</i><i class="key">9</i></div></div>
+          </div>
+          <div class="task"><div class="task-head"><span class="app-icon map">位</span>定位</div><div class="preview map-preview"><i class="pin"></i></div></div>
+        </div>
+        <div class="memory">页面实时保活</div><div class="home-line"></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A. 实时页面卡片</h3><p>卡片就是仍在运行的 LVGL 页面，恢复最快、状态最真实；多个复杂 APP 会持续占用 PSRAM，稳定性风险最高。</p></div>
+  </div>
+
+  <div class="card" data-choice="snapshot-cards" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>4G 82%</span></div>
+        <div class="title">最近任务</div>
+        <div class="task-strip">
+          <div class="task">
+            <div class="task-head"><span class="app-icon dial">话</span>电话 <span style="margin-left:auto;color:#219653">通话中</span></div>
+            <div class="preview"><div style="text-align:center;font:700 9px sans-serif;margin:3px 0 8px">138 0013 8000</div><div class="keypad"><i class="key">1</i><i class="key">2</i><i class="key">3</i><i class="key">4</i><i class="key">5</i><i class="key">6</i><i class="key">7</i><i class="key">8</i><i class="key">9</i></div></div>
+          </div>
+          <div class="task"><div class="task-head"><span class="app-icon map">位</span>定位</div><div class="preview map-preview"><i class="pin"></i></div></div>
+        </div>
+        <div class="memory">最多 4 个快照 · 服务独立运行</div><div class="home-line"></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B. 缩略快照卡片</h3><p><span class="recommended">推荐</span>。切出 APP 时生成低分辨率快照；后台只保留少量页面，超限则销毁 UI。外观像手机，内存可控。</p></div>
+  </div>
+
+  <div class="card" data-choice="state-cards" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>4G 82%</span></div>
+        <div class="title">运行中的 APP</div>
+        <div class="state-list">
+          <div class="state-row"><i class="app-icon dial">话</i>电话<span>通话中 03:21</span></div>
+          <div class="state-row"><i class="app-icon map">位</i>定位<span>10 秒前</span></div>
+          <div class="state-row"><i class="app-icon photo">图</i>照片<span>可关闭</span></div>
+        </div>
+        <div class="memory">仅保留图标和状态文字</div><div class="home-line"></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>C. 轻量状态列表</h3><p>不用页面截图，只显示 APP 图标和关键状态；资源占用最低、信息最清楚，但视觉上不像手机任务卡片。</p></div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:18px">点击一个方案，然后回到对话告诉我你的选择或想调整的地方。</p>

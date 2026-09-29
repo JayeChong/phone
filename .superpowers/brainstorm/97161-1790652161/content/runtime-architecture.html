@@ -1,0 +1,61 @@
+<style>
+  .diagram { display:grid; grid-template-columns: 1.05fr .8fr 1.05fr; gap:20px; align-items:start; margin-top:24px; }
+  .lane { border:1px solid #d7dde1; border-radius:8px; background:#f7f8f6; padding:14px; min-height:430px; }
+  .lane h3 { margin:0 0 4px; }
+  .lane-note { color:#6b767c; font-size:13px; margin-bottom:14px; }
+  .unit { background:white; border:1px solid #ccd4d8; border-radius:7px; padding:11px; margin:9px 0; box-shadow:0 3px 10px rgba(20,31,36,.06); }
+  .unit strong { display:block; font-size:14px; margin-bottom:4px; }
+  .unit small { color:#66737a; line-height:1.4; }
+  .ui { border-left:4px solid #2978b5; }
+  .app { border-left:4px solid #d6623f; }
+  .service { border-left:4px solid #219653; }
+  .worker { border-left:4px solid #b08123; }
+  .bus { background:#172027; color:white; text-align:center; border-radius:7px; padding:12px 8px; margin:18px 0; font-weight:700; font-size:13px; }
+  .arrow { text-align:center; color:#59676e; font-size:12px; line-height:1.5; margin:8px 0; }
+  .rule { margin-top:20px; padding:14px 16px; border-radius:7px; background:#eef5f0; border-left:4px solid #219653; }
+  .rule strong { color:#175c39; }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:16px; font-size:13px; color:#58656c; }
+  .dot { display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px; }
+  @media (max-width:900px){.diagram{grid-template-columns:1fr}.lane{min-height:auto}}
+</style>
+
+<h2>运行架构：隔离业务，集中渲染</h2>
+<p class="subtitle">检查重点：模块职责是否清楚，以及关闭 APP 页面时后台服务是否保持正确运行。</p>
+
+<div class="diagram">
+  <section class="lane">
+    <h3>Core 1 · UI 域</h3><div class="lane-note">唯一允许调用 LVGL 的任务</div>
+    <div class="unit ui"><strong>UI Task</strong><small>触摸轮询、手势识别、动画、LVGL 定时器、提交 SPI DMA 刷新</small></div>
+    <div class="unit ui"><strong>Desktop Shell</strong><small>多页桌面、状态栏、底部手势区、系统覆盖层</small></div>
+    <div class="unit ui"><strong>Page / Task Manager</strong><small>页面栈、最近任务、低分辨率快照、有限保活和 UI 销毁</small></div>
+    <div class="unit ui"><strong>System Overlay</strong><small>全屏来电页、通话状态入口、系统错误提示</small></div>
+    <div class="rule"><strong>硬规则</strong><br>不等待 AT、不读 TF 卡、不解 JPEG、不采集摄像头、不执行网络请求。</div>
+  </section>
+
+  <section class="lane">
+    <h3>通信边界</h3><div class="lane-note">只传小事件、状态副本和资源句柄</div>
+    <div class="arrow">服务/Worker 更新状态<br>↓</div>
+    <div class="bus">System Event Bus</div>
+    <div class="arrow">结构化事件<br>↓</div>
+    <div class="bus">UI Event Queue</div>
+    <div class="arrow">UI 命令 / 用户操作<br>↓</div>
+    <div class="bus">Command Queues</div>
+    <div class="arrow">禁止跨线程传递<br>LVGL 对象指针</div>
+  </section>
+
+  <section class="lane">
+    <h3>Core 0 / SMP · 业务域</h3><div class="lane-note">APP 组件与耗时任务彼此隔离</div>
+    <div class="unit app"><strong>APP Controllers</strong><small>电话、相机、相册、系统设置各自拥有状态机；通过 UI 消息描述界面变化</small></div>
+    <div class="unit service"><strong>System Services</strong><small>Modem/Call、Location Reporter、Upload Scheduler 常驻；不属于最近任务</small></div>
+    <div class="unit worker"><strong>Workers on Demand</strong><small>Camera Capture、JPEG Decode、Storage I/O、HTTP/MQTT 上传按需工作</small></div>
+    <div class="unit service"><strong>State Stores</strong><small>通话、定位、电量、网络状态有唯一数据所有者；UI 只读取快照</small></div>
+    <div class="rule"><strong>关闭示例</strong><br>电话任务卡消失，只销毁 UI 会话；Call Service 继续通话，桌面状态入口可重建通话页。</div>
+  </section>
+</div>
+
+<div class="legend"><span><i class="dot" style="background:#2978b5"></i>UI 框架</span><span><i class="dot" style="background:#d6623f"></i>APP 组件</span><span><i class="dot" style="background:#219653"></i>常驻服务</span><span><i class="dot" style="background:#b08123"></i>按需任务</span></div>
+
+<div class="options" style="margin-top:22px">
+  <div class="option" data-choice="architecture-approved" onclick="toggleSelect(this)"><div class="letter">✓</div><div class="content"><h3>架构边界正确</h3><p>按此结构继续设计生命周期和手势。</p></div></div>
+  <div class="option" data-choice="architecture-revise" onclick="toggleSelect(this)"><div class="letter">↺</div><div class="content"><h3>需要调整</h3><p>回到对话说明哪个模块或关系需要修改。</p></div></div>
+</div>
